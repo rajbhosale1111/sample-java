@@ -1,8 +1,3 @@
-# Maven package Java project Web App to Linux on Azure
-# Build your Java project and deploy it to Azure as a Linux web app
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
-
 trigger:
 - main
 
@@ -18,8 +13,7 @@ variables:
   environmentName: 'raj-Webappp'
 
   # Agent VM image name
-pool :
-  name: 'my-agent'
+  vmImageName: 'ubuntu-latest'
 
 stages:
 - stage: Build
@@ -28,8 +22,7 @@ stages:
   - job: MavenPackageAndPublishArtifacts
     displayName: Maven Package and Publish Artifacts
     pool:
-      vmImage: $(vmImageName)
-
+      name: my-agent  # Specify your self-hosted agent pool name here
     steps:
     - task: Maven@3
       displayName: 'Maven Package'
@@ -55,7 +48,7 @@ stages:
     displayName: Deploy Linux Web App
     environment: $(environmentName)
     pool:
-      vmImage: $(vmImageName)
+      name: my-agent  # Specify your self-hosted agent pool name here
     strategy:
       runOnce:
         deploy:
