@@ -18,7 +18,8 @@ variables:
   environmentName: 'raj-Webappp'
 
   # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+pool :
+  name: 'my-agent'
 
 stages:
 - stage: Build
