@@ -7,10 +7,10 @@ variables:
   azureSubscription: 'da3968b5-e827-4f3b-bb75-231e730aaf97'
 
   # Web app name
-  webAppName: 'raj-Webappp'
+  webAppName: 'demo-raj'
 
   # Environment name
-  environmentName: 'raj-Webappp'
+  environmentName: 'demo-raj'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
