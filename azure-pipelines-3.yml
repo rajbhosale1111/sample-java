@@ -60,6 +60,6 @@ stages:
             displayName: 'Copy Files to VM'
             inputs:
               SourceFolder: '$(Pipeline.Workspace)/drop/**/*.?(war|jar)'
-              TargetFolder: '/home/raj/azagent/'
+              TargetFolder: '/home/raj/azure/_work/3/drop/**/*.'
 
           # Add additional steps here to execute deployment commands on the VM.
