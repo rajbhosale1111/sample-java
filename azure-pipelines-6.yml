@@ -9,12 +9,10 @@ stages:
   jobs:
   - job: UpdateSystemJob
     steps:
-    - task: SSH@0
-      inputs:
-        sshEndpoint: 'vm1'
-        runOptions: 'commands'
-        commands: 'sudo apt update -y'
-        readyTimeout: '20000'
+    - script: |
+        sudo apt update -y
+      displayName: 'Update system packages'
+      continueOnError: true
 
 - stage: BuildAndTest
   jobs:
@@ -22,7 +20,7 @@ stages:
     steps:
     - task: Maven@3
       inputs:
-        mavenPomFile: '/MyWenApp/pom.xml'
+        mavenPomFile: 'pom.xml'
         mavenOptions: '-Xmx3072m'
         javaHomeOption: 'JDKVersion'
         jdkVersionOption: '1.8'
@@ -30,4 +28,3 @@ stages:
         publishJUnitResults: true
         testResultsFiles: '**/surefire-reports/TEST-*.xml'
         goals: 'package'
-
