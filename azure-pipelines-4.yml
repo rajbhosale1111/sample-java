@@ -1,0 +1,47 @@
+trigger:
+- main  # Trigger the pipeline when changes are pushed to the main branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # Use the latest version of Ubuntu as the agent VM
+
+variables:
+  vmResourceGroup: 'raj-RG'       # Azure resource group name
+  vmName: 'raj-deploy-VM'        # Azure VM name
+  appName: 'sample-java'         # Name of the Java application
+
+stages:
+- stage: Deploy
+  jobs:
+  - job: DeployJob
+    steps:
+    - task: UseJavaVersion@1
+      inputs:
+        versionSpec: '11'  # Use Java 11
+
+    - checkout: self       # Checkout the source code from the repository
+
+    - script: |
+        mvn clean package  # Build the Java application
+      displayName: 'Maven Build'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.SourcesDirectory)/target/sample-java.jar'
+        artifactName: 'sample-java'
+        publishLocation: 'Container'
+      displayName: 'Publish JAR as Build Artifact'
+
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'vm1'  # Name of the service connection
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az vm extension set \
+            --resource-group $(vmResourceGroup) \
+            --vm-name $(vmName) \
+            --name customScript \
+            --publisher Microsoft.Azure.Extensions \
+            --version 2.1 \
+            --settings '{"scriptFile":"$(System.ArtifactsDirectory)/sample-java/sample-java.jar","commandToExecute":"java -jar $(System.ArtifactsDirectory)/sample-java/sample-java.jar"}'
+      displayName: 'Deploy Java Application to VM'
