@@ -5,45 +5,31 @@ pool:
   vmImage: 'ubuntu-latest'  # Use the latest version of Ubuntu as the agent VM
 
 variables:
-  vmResourceGroup: 'raj-RG'       # Azure resource group name
   vmName: 'raj-deploy-VM'        # Azure VM name
   appName: 'sample-java'         # Name of the Java application
-  javaVersion: '11'              # Java version
-  mavenVersion: '3.8.4'          # Maven version
 
 stages:
 - stage: Deploy
   jobs:
   - job: DeployJob
     steps:
-    - task: UseJavaVersion@1
-      inputs:
-        versionSpec: '$(javaVersion)'  # Use the specified Java version from variables
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'vm1'  # Name of the service connection
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          # Update package list
-          sudo apt update
-          
-          # Install Java
-          sudo apt install -y openjdk-$(javaVersion)-jdk
-          
-          # Install Maven
-          sudo apt install -y maven=$(mavenVersion)
-          
-          # Verify installations
-          java -version
-          mvn -v
-      displayName: 'Install Java and Maven on VM'
-
     - checkout: self       # Checkout the source code from the repository
 
     - script: |
         mvn clean package  # Build the Java application
       displayName: 'Maven Build'
 
-    # ... (rest of your pipeline steps)
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathtoPublish: '$(Build.SourcesDirectory)/target/sample-java.jar'
+        artifactName: 'sample-java'
+        publishLocation: 'Container'
+      displayName: 'Publish JAR as Build Artifact'
+
+    - script: |
+        scp $(Build.SourcesDirectory)/target/sample-java.jar $(vmName):~/sample-java.jar
+      displayName: 'Copy JAR to VM'
+
+    - script: |
+        ssh $(vmName) 'java -jar ~/sample-java.jar'
+      displayName: 'Deploy Java Application to VM'
