@@ -29,8 +29,8 @@ stages:
     - task: CopyFiles@2
       displayName: 'Copy Files to artifact staging directory'
       inputs:
-        SourceFolder: '$(System.DefaultWorkingDirectory)'
-        Contents: '**/target/*.?(war|jar)'
+        SourceFolder: '$(System.DefaultWorkingDirectory)/MyWebApp/target/'
+        Contents: '*.?(war|jar)'
         TargetFolder: $(Build.ArtifactStagingDirectory)
 
     - upload: $(Build.ArtifactStagingDirectory)
@@ -50,10 +50,16 @@ stages:
       runOnce:
         deploy:
           steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Artifact'
+            inputs:
+              artifactName: 'drop'
+              path: '$(Pipeline.Workspace)/drop'
+
           - task: CopyFiles@2
             displayName: 'Copy Files to VM'
             inputs:
-              SourceFolder: '$(Pipeline.Workspace)/drop/**/target/*.?(war|jar)'
+              SourceFolder: '$(Pipeline.Workspace)/drop/**/*.?(war|jar)'
               TargetFolder: '/home/raj/azagent/'
 
-          # You can add additional steps here to execute deployment commands on the VM.
+          # Add additional steps here to execute deployment commands on the VM.
