@@ -16,6 +16,7 @@ stages:
     - checkout: self       # Checkout the source code from the repository
 
     - script: |
+        cd $(Build.SourcesDirectory)  # Navigate to the source directory
         mvn clean package  # Build the Java application
       displayName: 'Maven Build'
 
